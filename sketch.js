@@ -9,8 +9,11 @@ function setup() {
   video.size(width, height);
   video.hide();
 
+  // 初始化 facemesh
   facemesh = ml5.facemesh(video, modelReady);
-  facemesh.on("predict", results => {
+
+  // 設置事件監聽器
+  facemesh.on('predict', (results) => {
     predictions = results;
   });
 }
