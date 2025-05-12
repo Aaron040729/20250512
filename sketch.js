@@ -4,17 +4,17 @@ let predictions = [];
 const points = [409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291];
 
 function setup() {
-  createCanvas(400, 400);
+  const canvas = createCanvas(640, 480); // 修改畫布大小為 640x480
+  canvas.position((windowWidth - width) / 2, (windowHeight - height) / 2); // 將畫布置中
   video = createCapture(VIDEO);
-  video.size(width, height);
+  video.size(640, 480); // 修改攝影機大小為 640x480
   video.hide();
 
-  // 初始化 facemesh
+  console.log("Loading Facemesh model...");
   facemesh = ml5.facemesh(video, modelReady);
-
-  // 設置事件監聽器
-  facemesh.on('predict', (results) => {
+  facemesh.on("predict", (results) => {
     predictions = results;
+    console.log(predictions); // 檢查預測結果
   });
 }
 
@@ -32,14 +32,29 @@ function drawFacemesh() {
     const keypoints = predictions[0].scaledMesh;
 
     stroke(255, 0, 0); // 紅色線條
-    strokeWeight(5); // 線條粗細為5
+    strokeWeight(5);   // 線條粗細
     noFill();
 
     beginShape();
     for (let i = 0; i < points.length; i++) {
-      const [x, y] = keypoints[points[i]];
-      vertex(x, y);
+      const index = points[i];
+      if (keypoints[index]) {
+        const [x, y] = keypoints[index];
+        console.log(`Point ${index}: (${x}, ${y})`); // 檢查每個點的座標
+        vertex(x, y);
+      } else {
+        console.log(`Invalid point index: ${index}`);
+      }
     }
     endShape(CLOSE); // 將最後一點與第一點連接
   }
+}
+
+function windowResized() {
+  // 當視窗大小改變時，重新置中畫布
+  resizeCanvas(640, 480); // 修改畫布大小為 640x480
+  const canvas = document.querySelector("canvas");
+  canvas.style.position = "absolute";
+  canvas.style.left = `${(windowWidth - width) / 2}px`;
+  canvas.style.top = `${(windowHeight - height) / 2}px`;
 }
